@@ -16,6 +16,7 @@ jobs:
       - run: npm ci --prefix=frontend && npm run build --prefix=frontend
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
+          entrypoint: ./frontend
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_COLIBRI_FEED_APP }}
           projectId: colibri-feed-app
