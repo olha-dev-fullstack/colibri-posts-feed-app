@@ -1,5 +1,13 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { CreatePostDto } from './dto/post.dto';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 import { PostService } from './post.service';
 
 @Controller('posts')
@@ -16,18 +24,28 @@ export class PostController {
     return this.postsService.getPosts();
   }
 
-  //   @Get(':id')
-  //   findOne(@Param('id') id: string) {
-  //     return this.postsService.getPostById(id);
-  //   }
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.postsService.getPostById(id);
+  }
 
-  //   @Put(':id')
-  //   update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-  //     return this.postsService.updatePost(id, updatePostDto);
-  //   }
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+    return this.postsService.updatePost(id, updatePostDto);
+  }
 
-  //   @Delete(':id')
-  //   remove(@Param('id') id: string) {
-  //     return this.postsService.deletePost(id);
-  //   }
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.postsService.deletePost(id);
+  }
+
+  @Post(':id/like')
+  likePost(@Param('id') postId: string, @Body('userId') userId: string) {
+    return this.postsService.likePost(postId, userId);
+  }
+
+  @Post(':id/dislike')
+  dislikePost(@Param('id') postId: string, @Body('userId') userId: string) {
+    return this.postsService.dislikePost(postId, userId);
+  }
 }

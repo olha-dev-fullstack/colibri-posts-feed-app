@@ -1,5 +1,5 @@
 // src/posts/dto/post.dto.ts
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class CreatePostDto {
   @IsNotEmpty()
@@ -11,11 +11,13 @@ export class CreatePostDto {
   text: string;
 
   @IsOptional()
-  @IsString()
+  @IsUrl()
   photo?: string;
 
-  likes: number = 0;
-  dislikes: number = 0;
+  likes: string[] = [];
+  dislikes: string[] = [];
+  likesCount: number = 0;
+  dislikesCount: number = 0;
 
   @IsNotEmpty()
   @IsString()
@@ -32,6 +34,6 @@ export class UpdatePostDto {
   text?: string;
 
   @IsOptional()
-  @IsString()
+  @IsUrl()
   photo?: string;
 }

@@ -5,8 +5,10 @@ export class PostDocument {
   title: string;
   text: string;
   photo?: string;
-  likes: number;
-  dislikes: number;
+  likes: string[];
+  dislikes: string[];
+  likesCount: number;
+  dislikesCount: number;
   owner: string;
   createdAt: FirebaseFirestore.Timestamp;
   updatedAt: FirebaseFirestore.Timestamp;
