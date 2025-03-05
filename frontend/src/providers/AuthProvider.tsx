@@ -1,10 +1,11 @@
 import {
-    createUserWithEmailAndPassword,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    signInWithPopup,
-    signOut,
-    User,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  User,
 } from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
 import { auth, googleProvider } from "../firebase/firebase";
@@ -18,16 +19,18 @@ interface AuthContextType {
   logOut: () => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-//   const verifyUserMutation = useMutation(async (idToken: string) => {
-//     const response = await axios.post("https://your-backend.com/api/auth/verify", { idToken });
-//     return response.data;
-//   });
+  //   const verifyUserMutation = useMutation(async (idToken: string) => {
+  //     const response = await axios.post("https://your-backend.com/api/auth/verify", { idToken });
+  //     return response.data;
+  //   });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -45,7 +48,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const { user } = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    await sendEmailVerification(user);
   };
 
   const signIn = async (email: string, password: string) => {
@@ -61,10 +69,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, signUp, signIn, signInWithGoogle, logOut }}>
+    <AuthContext.Provider
+      value={{ user, isLoading, signUp, signIn, signInWithGoogle, logOut }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
-
-

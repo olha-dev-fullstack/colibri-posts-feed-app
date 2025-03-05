@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 const SignIn = () => {
@@ -7,6 +8,7 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,7 +17,10 @@ const SignIn = () => {
 
     try {
       await signIn(email, password);
-    } catch {
+      navigate("/");
+    } catch (e) {
+      console.log(e);
+
       setError("Failed to sign in. Check your email and password.");
     }
 
