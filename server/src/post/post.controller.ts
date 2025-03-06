@@ -6,7 +6,9 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 import { PostService } from './post.service';
 
@@ -14,6 +16,7 @@ import { PostService } from './post.service';
 export class PostController {
   constructor(private readonly postsService: PostService) {}
 
+  @UseGuards(AuthGuard)
   @Post()
   create(@Body() createPostDto: CreatePostDto) {
     return this.postsService.createPost(createPostDto);

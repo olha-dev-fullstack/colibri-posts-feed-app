@@ -56,3 +56,4 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 colibri-feed-app-firebase-adminsdk-fbsvc-f10f7626b0.json
+src/firebase/config.ts

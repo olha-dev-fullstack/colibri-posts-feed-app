@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
+  updateProfile,
   User,
 } from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
@@ -13,7 +14,7 @@ import { auth, googleProvider } from "../firebase/firebase";
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, username: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   logOut: () => Promise<void>;
@@ -47,13 +48,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string) => {
-    const { user } = await createUserWithEmailAndPassword(
+  const signUp = async (email: string, password: string, username: string) => {
+    const userCredentials = await createUserWithEmailAndPassword(
       auth,
       email,
       password
     );
-    await sendEmailVerification(user);
+    await updateProfile(userCredentials.user, {
+      displayName: username,
+    });
+
+    await sendEmailVerification(userCredentials.user);
   };
 
   const signIn = async (email: string, password: string) => {
