@@ -1,29 +1,18 @@
 import { QueryClientContext, useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { useContext, useEffect } from "react";
+import { ChangeEvent, ChangeEventHandler, useContext, useEffect } from "react";
 import { PostsFeed } from "../components/PostsFeed";
 import { useAuth } from "../hooks/useAuth";
-import { IPost } from "../interface/post.interface";
+import { fetchPostsFeed } from "../feature/posts";
+import { getUploadLink } from "../firebase/imageUploader";
 
 const Home = () => {
   const { user, isLoading } = useAuth();
   const client = useContext(QueryClientContext);
   // const [newPost, setNewPost] = useState({ text: "", image: null });
 
-  const fetchPosts = async () => {
-    const response = await axios.get<IPost[]>("http://localhost:3000/posts", {
-      headers: {
-        Authorization: `Bearer ${await user?.getIdToken()}`,
-      },
-    });
-    console.log("123", response);
-
-    return response?.data;
-  };
-
   const { data: posts, isLoading: isPostsLoading } = useQuery({
     queryKey: ["postsFromDb"],
-    queryFn: fetchPosts,
+    queryFn: () => fetchPostsFeed(user!, "http://localhost:3000/posts"),
     enabled: !isLoading,
   });
 
@@ -31,16 +20,7 @@ const Home = () => {
     client?.invalidateQueries({ queryKey: ["postsFromDb"] });
   }, [user, client]);
 
-  // const handleImageUpload = (e) => {
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       setNewPost({ ...newPost, image: reader.result });
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
+
 
   // const addPost = () => {
   //   if (!newPost.text.trim()) return;

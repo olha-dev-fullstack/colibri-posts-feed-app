@@ -1,6 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CollectionReference, Firestore } from 'firebase-admin/firestore';
+import {
+  CollectionReference,
+  Firestore,
+  Query,
+} from 'firebase-admin/firestore';
 import { FirestoreDatabaseProvider } from 'src/firestore/firestore.providers';
+import { UserDocument } from 'src/user/user.document';
 import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 import { PostDocument } from './post.document';
 
@@ -13,9 +18,13 @@ export class PostService {
     private firestore: Firestore,
   ) {}
 
-  async createPost(createPostDto: CreatePostDto): Promise<PostDocument> {
+  async createPost(
+    userInfo: UserDocument,
+    createPostDto: CreatePostDto,
+  ): Promise<PostDocument> {
     const newPost: PostDocument = {
       ...createPostDto,
+      owner: userInfo.firebaseId,
       createdAt: new Date() as any,
       updatedAt: new Date() as any,
     };
@@ -23,8 +32,14 @@ export class PostService {
     return { id: docRef.id, ...newPost };
   }
 
-  async getPosts(): Promise<PostDocument[]> {
-    const snapshot = await this.postsCollection.get();
+  async getFeed(userId?: string): Promise<PostDocument[]> {
+    let query: Query;
+    if (userId) {
+      query = this.postsCollection.where('owner', '!=', userId);
+    } else {
+      query = this.postsCollection;
+    }
+    const snapshot = await query.get();
     return snapshot.docs.map(
       (doc) => ({ id: doc.id, ...doc.data() }) as PostDocument,
     );

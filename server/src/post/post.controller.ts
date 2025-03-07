@@ -9,6 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { UserFromDb } from 'src/decorators/userFromDb.decorator';
+import { UserDocument } from 'src/user/user.document';
 import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 import { PostService } from './post.service';
 
@@ -18,13 +20,16 @@ export class PostController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.createPost(createPostDto);
+  create(
+    @UserFromDb() userInfo: UserDocument,
+    @Body() createPostDto: CreatePostDto,
+  ) {
+    return this.postsService.createPost(userInfo, createPostDto);
   }
 
   @Get()
-  findAll() {
-    return this.postsService.getPosts();
+  getFeed(@UserFromDb('firebaseId') userId: string) {
+    return this.postsService.getFeed(userId);
   }
 
   @Get(':id')

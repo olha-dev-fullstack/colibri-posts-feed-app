@@ -34,4 +34,9 @@ export class UserController {
       firebaseId: decodedUser.uid,
     });
   }
+
+  @Get('/posts')
+  async getUserPosts(@UserFromDb('firebaseId') userId: string) {
+    return this.userService.getUserPosts(userId);
+  }
 }

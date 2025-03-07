@@ -8,5 +8,5 @@ export interface IPost {
   likesCount?: number;
   dislikesCount?: number;
   owner: string;
-  comments: string[];
+  comments?: string[];
 }

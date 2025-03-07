@@ -18,10 +18,6 @@ export class CreatePostDto {
   dislikes: string[] = [];
   likesCount: number = 0;
   dislikesCount: number = 0;
-
-  @IsNotEmpty()
-  @IsString()
-  owner: string;
 }
 
 export class UpdatePostDto {
