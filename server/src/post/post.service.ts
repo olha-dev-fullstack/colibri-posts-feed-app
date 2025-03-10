@@ -41,13 +41,24 @@ export class PostService {
     }
     const snapshot = await query.get();
     return snapshot.docs.map(
-      (doc) => ({ id: doc.id, ...doc.data() }) as PostDocument,
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.createTime.toDate(),
+        }) as PostDocument,
     );
   }
 
   async getPostById(id: string): Promise<PostDocument | null> {
     const doc = await this.postsCollection.doc(id).get();
-    return doc.exists ? ({ id: doc.id, ...doc.data() } as PostDocument) : null;
+    return doc.exists
+      ? ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.createTime.toDate(),
+        } as PostDocument)
+      : null;
   }
 
   async updatePost(id: string, updatePostDto: UpdatePostDto): Promise<void> {
@@ -61,7 +72,7 @@ export class PostService {
     await this.postsCollection.doc(id).delete();
   }
 
-  async likePost(postId: string, userId: string): Promise<void> {
+  async likePost(postId: string, userId: string): Promise<PostDocument> {
     const postRef = this.postsCollection.doc(postId);
     await this.firestore.runTransaction(async (transaction) => {
       const postDoc = await transaction.get(postRef);
@@ -71,11 +82,12 @@ export class PostService {
       const likesCopy = new Set(post.likes || []);
       const dislikesCopy = new Set(post.dislikes || []);
 
-      if (likesCopy.has(userId)) return;
-
-      likesCopy.add(userId);
-
-      dislikesCopy.delete(userId);
+      if (likesCopy.has(userId)) {
+        likesCopy.delete(userId);
+      } else {
+        likesCopy.add(userId);
+        dislikesCopy.delete(userId);
+      }
 
       transaction.update(postRef, {
         likes: Array.from(likesCopy),
@@ -84,9 +96,11 @@ export class PostService {
         dislikesCount: dislikesCopy.size,
       });
     });
+
+    return this.getPostById(postId);
   }
 
-  async dislikePost(postId: string, userId: string): Promise<void> {
+  async dislikePost(postId: string, userId: string): Promise<PostDocument> {
     const postRef = this.postsCollection.doc(postId);
     await this.firestore.runTransaction(async (transaction) => {
       const postDoc = await transaction.get(postRef);
@@ -96,10 +110,12 @@ export class PostService {
       const likesCopy = new Set(post.likes || []);
       const dislikesCopy = new Set(post.dislikes || []);
 
-      if (dislikesCopy.has(userId)) return;
-
-      dislikesCopy.add(userId);
-      likesCopy.delete(userId);
+      if (dislikesCopy.has(userId)) {
+        dislikesCopy.delete(userId);
+      } else {
+        dislikesCopy.add(userId);
+        likesCopy.delete(userId);
+      }
 
       transaction.update(postRef, {
         likes: Array.from(likesCopy),
@@ -108,5 +124,6 @@ export class PostService {
         dislikesCount: dislikesCopy.size,
       });
     });
+    return this.getPostById(postId);
   }
 }

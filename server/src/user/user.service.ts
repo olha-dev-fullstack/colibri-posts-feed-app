@@ -28,7 +28,11 @@ export class UserService {
     const snapshot = await this.postsCollection
       .where('owner', '==', userId)
       .get();
-    const posts = snapshot.docs.map((p) => ({ id: p.id, ...p.data() }));
+    const posts = snapshot.docs.map((p) => ({
+      id: p.id,
+      ...p.data(),
+      createdAt: p.createTime.toDate(),
+    }));
     return posts;
   }
 }

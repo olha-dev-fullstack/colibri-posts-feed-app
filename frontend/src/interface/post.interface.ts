@@ -1,5 +1,6 @@
+import { Timestamp } from "firebase/firestore";
 export interface IPost {
-  id?: string;
+  id: string;
   title: string;
   text: string;
   photo?: string;
@@ -9,4 +10,5 @@ export interface IPost {
   dislikesCount?: number;
   owner: string;
   comments?: string[];
+  createdAt?: Timestamp;
 }

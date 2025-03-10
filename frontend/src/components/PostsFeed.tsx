@@ -11,7 +11,7 @@ export const PostsFeed = ({
   return (
     <div className="space-y-4">
       {posts.map((post) => (
-        <Post post={post} />
+        <Post key={post.id} post={post} />
       ))}
     </div>
   );

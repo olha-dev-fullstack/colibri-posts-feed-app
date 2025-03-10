@@ -10,6 +10,6 @@ export class PostDocument {
   likesCount: number;
   dislikesCount: number;
   owner: string;
-  createdAt: FirebaseFirestore.Timestamp;
+  createdAt: FirebaseFirestore.Timestamp | Date;
   updatedAt: FirebaseFirestore.Timestamp;
 }

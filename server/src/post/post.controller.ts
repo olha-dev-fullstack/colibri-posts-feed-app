@@ -32,28 +32,39 @@ export class PostController {
     return this.postsService.getFeed(userId);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.postsService.getPostById(id);
   }
 
+  @UseGuards(AuthGuard)
   @Put(':id')
   update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
     return this.postsService.updatePost(id, updatePostDto);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.postsService.deletePost(id);
   }
 
+  @UseGuards(AuthGuard)
   @Post(':id/like')
-  likePost(@Param('id') postId: string, @Body('userId') userId: string) {
+  likePost(
+    @Param('id') postId: string,
+    @UserFromDb('firebaseId') userId: string,
+  ) {
     return this.postsService.likePost(postId, userId);
   }
 
+  @UseGuards(AuthGuard)
   @Post(':id/dislike')
-  dislikePost(@Param('id') postId: string, @Body('userId') userId: string) {
+  dislikePost(
+    @Param('id') postId: string,
+    @UserFromDb('firebaseId') userId: string,
+  ) {
     return this.postsService.dislikePost(postId, userId);
   }
 }

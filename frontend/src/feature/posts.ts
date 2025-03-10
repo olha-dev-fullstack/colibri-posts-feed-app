@@ -8,7 +8,6 @@ export const fetchPostsFeed = async (user: User, endpoint: string) => {
       Authorization: `Bearer ${await user?.getIdToken()}`,
     },
   });
-  console.log("123", response);
 
   return response?.data;
 };
@@ -25,4 +24,24 @@ export const addPostFn = async (user: User, newPost: IPost) => {
       },
     }
   );
+};
+
+export const likePostFn = async (user: User, postId: string) => {
+  const response = await  axios.post<IPost>(`http://localhost:3000/posts/${postId}/like`, {}, {
+    headers: {
+      Authorization: `Bearer ${await user?.getIdToken()}`,
+    },
+  });
+  return response?.data;
+
+};
+
+export const dislikePostFn = async (user: User, postId: string) => {
+  const response = await  axios.post<IPost>(`http://localhost:3000/posts/${postId}/dislike`, {}, {
+    headers: {
+      Authorization: `Bearer ${await user?.getIdToken()}`,
+    },
+  });
+  return response?.data;
+
 };
