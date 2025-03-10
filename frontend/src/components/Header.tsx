@@ -27,11 +27,13 @@ export const Header = () => {
       </nav>
       {user ? (
         <div
-          className="relative"
           onMouseEnter={() => setIsMenuVisible(true)}
           onMouseLeave={() => setIsMenuVisible(false)}
         >
-          <button className="rounded-full w-10 h-10 bg-gray-300"></button>
+          <button
+            style={{ backgroundImage: `url('${user.photoURL}')`, backgroundSize: "contain" }}
+            className="rounded-full w-10 h-10"
+          ></button>
           {isMenuVisible && (
             <div className="absolute right-0 w-40 bg-white shadow-md rounded-md">
               <button
