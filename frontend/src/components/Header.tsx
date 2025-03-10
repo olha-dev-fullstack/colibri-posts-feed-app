@@ -31,9 +31,10 @@ export const Header = () => {
           onMouseLeave={() => setIsMenuVisible(false)}
         >
           <button
-            style={{ backgroundImage: `url('${user.photoURL}')`, backgroundSize: "contain" }}
-            className="rounded-full w-10 h-10"
-          ></button>
+            className="w-10 h-10"
+          >
+            {user.photoURL && <img src={user.photoURL} className="rounded-full contained"/>}
+          </button>
           {isMenuVisible && (
             <div className="absolute right-0 w-40 bg-white shadow-md rounded-md">
               <button
