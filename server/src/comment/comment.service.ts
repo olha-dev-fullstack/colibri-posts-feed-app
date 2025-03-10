@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CollectionReference } from 'firebase-admin/firestore';
 import { PostDocument } from 'src/post/post.document';
+import { UserDocument } from 'src/user/user.document';
 import { CommentDocument } from './comment.document';
 import { CreateCommentDto } from './dto/comment.dto';
 
@@ -12,16 +13,18 @@ export class CommentService {
   ) {}
   async addComment(
     postId: string,
+    user: UserDocument,
     createCommentDto: CreateCommentDto,
   ): Promise<CommentDocument> {
-    const { userId, username, ...commentData } = createCommentDto;
-    const commentRef = this.postsCollection
-      .doc(postId)
-      .collection(CommentDocument.collectionName)
-      .doc();
+    const { text } = createCommentDto;
+    const { firebaseId: userId, username } = user;
+    const postRef = this.postsCollection.doc(postId);
+    const commentsCount = (await postRef.get()).data().commentsCount || 0;
+    console.log(commentsCount);
+    const commentRef = postRef.collection(CommentDocument.collectionName).doc();
 
     const newComment: CommentDocument = {
-      ...commentData,
+      text,
       userId,
       username,
       postId,
@@ -29,6 +32,8 @@ export class CommentService {
     };
 
     await commentRef.set(newComment);
+    await postRef.set({ commentsCount: commentsCount + 1 }, { merge: true });
+
     return { id: commentRef.id, ...newComment };
   }
 

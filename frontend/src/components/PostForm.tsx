@@ -1,9 +1,9 @@
 import { ChangeEvent } from "react";
-import { IPost } from "../interface/post.interface";
+import { ICreatePost } from "../interface/post.interface";
 
 type PostProps = {
-  newPost: IPost;
-  setNewPost: (post: IPost) => void;
+  newPost: ICreatePost;
+  setNewPost: (post: ICreatePost) => void;
   handleImageUpload: (e: ChangeEvent<HTMLInputElement>) => Promise<void>;
   addPost: () => void;
 };

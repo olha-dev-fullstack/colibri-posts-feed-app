@@ -9,12 +9,12 @@ import { PostsFeed } from "../components/PostsFeed";
 import { addPostFn, fetchPostsFeed } from "../feature/posts";
 import { getUploadLink } from "../firebase/imageUploader";
 import { useAuth } from "../hooks/useAuth";
-import { IPost } from "../interface/post.interface";
+import { ICreatePost } from "../interface/post.interface";
 
 export const MyPosts = () => {
   const { user, isLoading } = useAuth();
   const client = useContext(QueryClientContext);
-  const [newPost, setNewPost] = useState<IPost>({
+  const [newPost, setNewPost] = useState<ICreatePost>({
     title: "",
     text: "",
     owner: user!.uid,
@@ -32,7 +32,7 @@ export const MyPosts = () => {
   }, [user, client]);
 
   const { mutate } = useMutation({
-    mutationFn: (postToCreate: IPost) => addPostFn(user!, postToCreate),
+    mutationFn: (postToCreate: ICreatePost) => addPostFn(user!, postToCreate),
     onSuccess: () => {
       client?.invalidateQueries({ queryKey: ["postsFromDb"] });
     },
@@ -46,26 +46,15 @@ export const MyPosts = () => {
   const addPost = async () => {
     let fileUrl;
     if (file) {
-       fileUrl = await getUploadLink(file);
+      fileUrl = await getUploadLink(file);
     }
-    mutate({...newPost, photo: fileUrl});
+    mutate({ ...newPost, photo: fileUrl });
     setNewPost({ title: "", text: "", owner: "", photo: "" });
     setFile(null);
   };
 
-  const addComment = (postId: string, comment: string) => {
-    // setPosts(
-    //   posts.map((post) =>
-    //     post.id === postId
-    //       ? {
-    //           ...post,
-    //           comments: [...post.comments, { id: uuidv4(), text: comment }],
-    //         }
-    //       : post
-    //   )
-    // );
-    return;
-  };
+
+  
   if (isPostsLoading) return <p>Loading....</p>;
 
   return (
@@ -77,7 +66,7 @@ export const MyPosts = () => {
         addPost={addPost}
       />
 
-      {posts && <PostsFeed posts={posts} addComment={addComment} />}
+      {posts && <PostsFeed posts={posts} />}
     </div>
   );
 };

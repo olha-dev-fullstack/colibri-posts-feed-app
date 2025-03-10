@@ -3,10 +3,10 @@ import { Post } from "./Post";
 
 export const PostsFeed = ({
   posts,
-}: //   addComment,
+}:
 {
   posts: IPost[];
-  addComment: (postId: string, text: string) => void;
+
 }) => {
   return (
     <div className="space-y-4">

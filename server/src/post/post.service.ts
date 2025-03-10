@@ -24,6 +24,11 @@ export class PostService {
   ): Promise<PostDocument> {
     const newPost: PostDocument = {
       ...createPostDto,
+      likes: [],
+      dislikes: [],
+      likesCount: 0,
+      dislikesCount: 0,
+      commentsCount: 0,
       owner: userInfo.firebaseId,
       createdAt: new Date() as any,
       updatedAt: new Date() as any,

@@ -1,17 +1,22 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/comment.dto';
+import { UserFromDb } from 'src/decorators/userFromDb.decorator';
+import { UserDocument } from 'src/user/user.document';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('posts/:postId/comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
+  @UseGuards(AuthGuard)
   @Post()
   create(
     @Param('postId') postId: string,
+    @UserFromDb() user: UserDocument,
     @Body() createCommentDto: CreateCommentDto,
   ) {
-    return this.commentService.addComment(postId, createCommentDto);
+    return this.commentService.addComment(postId, user, createCommentDto);
   }
 
   //   @Post('reply')
