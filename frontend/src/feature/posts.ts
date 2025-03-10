@@ -59,3 +59,21 @@ export const deletePostFn = async (user: User, postId: string) => {
     },
   });
 };
+
+export const updatePostFn = async (
+  user: User,
+  { postId, postData }: { postId: string; postData: Partial<ICreatePost> }
+) => {
+  const response = await axios.put<IPost>(
+    `http://localhost:3000/posts/${postId}`,
+    {
+      ...postData,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${await user?.getIdToken()}`,
+      },
+    }
+  );
+  return response?.data;
+};

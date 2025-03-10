@@ -21,3 +21,4 @@ export interface ICreatePost {
   photo?: string;
   owner: string;
 }
+

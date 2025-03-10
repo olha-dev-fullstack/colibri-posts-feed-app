@@ -66,11 +66,15 @@ export class PostService {
       : null;
   }
 
-  async updatePost(id: string, updatePostDto: UpdatePostDto): Promise<void> {
+  async updatePost(
+    id: string,
+    updatePostDto: UpdatePostDto,
+  ): Promise<PostDocument> {
     await this.postsCollection.doc(id).update({
       ...updatePostDto,
       updatedAt: new Date() as any,
     });
+    return this.getPostById(id);
   }
 
   async deletePost(id: string): Promise<void> {
