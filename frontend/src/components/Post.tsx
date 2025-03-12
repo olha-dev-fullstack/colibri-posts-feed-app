@@ -8,10 +8,20 @@ import {
 } from "../feature/posts";
 import { getUploadLink } from "../firebase/imageUploader";
 import { useAuth } from "../hooks/useAuth";
-import { ICreatePost, IPost } from "../interface/post.interface";
+import {
+  ICreatePost,
+  IPaginatedPosts,
+  IPost,
+} from "../interface/post.interface";
 import { CommentsBlock } from "./CommentsBlock";
 
-export const Post = ({ post }: { post: IPost }) => {
+export const Post = ({
+  post,
+  ref,
+}: {
+  post: IPost;
+  ref: null | ((node: HTMLDivElement) => void);
+}) => {
   const { user } = useAuth();
   const userId = user?.uid;
   const client = useContext(QueryClientContext);
@@ -26,10 +36,15 @@ export const Post = ({ post }: { post: IPost }) => {
   const { mutate: likePostMutation } = useMutation({
     mutationFn: async (postId: string) => likePostFn(user!, postId),
     onSuccess: (updatedPost) => {
-      client?.setQueryData(["postsFromDb"], (oldPosts: IPost[]) => {
-        return oldPosts.map((post) =>
-          post.id === updatedPost.id ? updatedPost : post
-        );
+      client?.setQueryData(["posts"], (oldPosts: IPaginatedPosts) => {
+        oldPosts.pages.forEach((page) => {
+          page.posts.forEach((post) => {
+            if (post.id === updatedPost.id) {
+              Object.assign(post, updatedPost);
+            }
+          });
+        });
+        return oldPosts;
       });
     },
   });
@@ -37,10 +52,15 @@ export const Post = ({ post }: { post: IPost }) => {
   const { mutate: dislikePostMutation } = useMutation({
     mutationFn: async (postId: string) => dislikePostFn(user!, postId),
     onSuccess: (updatedPost) => {
-      client?.setQueryData(["postsFromDb"], (oldPosts: IPost[]) => {
-        return oldPosts.map((post) =>
-          post.id === updatedPost.id ? updatedPost : post
-        );
+      client?.setQueryData(["posts"], (oldPosts: IPaginatedPosts) => {
+        oldPosts.pages.forEach((page) => {
+          page.posts.forEach((post) => {
+            if (post.id === updatedPost.id) {
+              Object.assign(post, updatedPost);
+            }
+          });
+        });
+        return oldPosts;
       });
     },
   });
@@ -48,7 +68,7 @@ export const Post = ({ post }: { post: IPost }) => {
   const { mutate: deletePostMutation } = useMutation({
     mutationFn: async (postId: string) => deletePostFn(user!, postId),
     onSuccess: () => {
-      client?.invalidateQueries({ queryKey: ["postsFromDb"] });
+      client?.invalidateQueries({ queryKey: ["posts"] });
     },
   });
 
@@ -61,10 +81,15 @@ export const Post = ({ post }: { post: IPost }) => {
       postData: Partial<ICreatePost>;
     }) => updatePostFn(user!, { postId, postData }),
     onSuccess: (updatedPost) => {
-      client?.setQueryData(["postsFromDb"], (oldPosts: IPost[]) => {
-        return oldPosts.map((post) =>
-          post.id === updatedPost.id ? updatedPost : post
-        );
+      client?.setQueryData(["posts"], (oldPosts: IPaginatedPosts) => {
+        oldPosts.pages.forEach((page) => {
+          page.posts.forEach((post) => {
+            if (post.id === updatedPost.id) {
+              Object.assign(post, updatedPost);
+            }
+          });
+        });
+        return oldPosts;
       });
     },
   });
@@ -108,7 +133,7 @@ export const Post = ({ post }: { post: IPost }) => {
   };
 
   return (
-    <div className="p-4 bg-white shadow-md rounded-md">
+    <div className="p-4 bg-white shadow-md rounded-md" ref={ref}>
       <p className="text-gray-600 text-sm">
         {post?.createdAt?.toLocaleString()} {/* Display formatted date */}
       </p>

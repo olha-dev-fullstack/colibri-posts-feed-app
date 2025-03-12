@@ -1,4 +1,10 @@
-import { Controller, Get, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  NotFoundException,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
 import { DecodedIdToken } from 'firebase-admin/auth';
 import { UserFromDb } from 'src/decorators/userFromDb.decorator';
 import { UserFromToken } from 'src/decorators/userFromToken.decorator';
@@ -36,7 +42,11 @@ export class UserController {
   }
 
   @Get('/posts')
-  async getUserPosts(@UserFromDb('firebaseId') userId: string) {
-    return this.userService.getUserPosts(userId);
+  async getUserPosts(
+    @UserFromDb('firebaseId') userId: string,
+    @Query('limit', ParseIntPipe) limit: number,
+    @Query('lastDocId') lastDocId?: string,
+  ) {
+    return this.userService.getUserPosts(userId, limit, lastDocId);
   }
 }

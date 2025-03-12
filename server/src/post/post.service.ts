@@ -33,6 +33,7 @@ export class PostService {
       createdAt: new Date() as any,
       updatedAt: new Date() as any,
     };
+
     const docRef = await this.postsCollection.add(newPost);
     return { id: docRef.id, ...newPost };
   }
@@ -53,6 +54,37 @@ export class PostService {
           createdAt: doc.createTime.toDate(),
         }) as PostDocument,
     );
+  }
+
+  async getPaginatedFeed(
+    limit?: number,
+    userId?: string,
+    lastDocId?: string,
+  ): Promise<{ posts: PostDocument[]; lastVisibleId: string }> {
+    let postsQuery = this.postsCollection
+      .orderBy('createdAt', 'desc')
+      .limit(limit);
+
+    if (userId) {
+      postsQuery = postsQuery.where('owner', '!=', userId);
+    }
+    if (lastDocId) {
+      const lastDoc = await this.postsCollection.doc(lastDocId).get();
+      postsQuery = postsQuery.startAfter(lastDoc);
+    }
+
+    const snapshot = await postsQuery.get();
+    const posts = snapshot.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.createTime.toDate(),
+        }) as PostDocument,
+    );
+
+    const lastVisibleId = posts[posts.length - 1]?.id;
+    return { posts, lastVisibleId };
   }
 
   async getPostById(id: string): Promise<PostDocument | null> {

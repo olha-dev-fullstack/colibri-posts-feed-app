@@ -1,18 +1,25 @@
 import {
   QueryClientContext,
+  useInfiniteQuery,
   useMutation,
-  useQuery,
 } from "@tanstack/react-query";
-import { ChangeEvent, useContext, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { Post } from "../components/Post";
 import { PostForm } from "../components/PostForm";
-import { PostsFeed } from "../components/PostsFeed";
 import { addPostFn, fetchPostsFeed } from "../feature/posts";
 import { getUploadLink } from "../firebase/imageUploader";
 import { useAuth } from "../hooks/useAuth";
 import { ICreatePost } from "../interface/post.interface";
 
 export const MyPosts = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: isUserLoading } = useAuth();
   const client = useContext(QueryClientContext);
   const [newPost, setNewPost] = useState<ICreatePost>({
     title: "",
@@ -21,20 +28,47 @@ export const MyPosts = () => {
   });
   const [file, setFile] = useState<File | null>(null);
 
-  const { data: posts, isLoading: isPostsLoading } = useQuery({
-    queryKey: ["postsFromDb"],
-    queryFn: () => fetchPostsFeed(user!, "http://localhost:3000/user/posts"),
-    enabled: !isLoading,
-  });
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
+    useInfiniteQuery({
+      queryKey: ["posts"],
+      queryFn: ({ pageParam }) =>
+        fetchPostsFeed({
+          user: user!,
+          endpoint: "http://localhost:3000/user/posts",
+          pageParam: pageParam,
+        }),
+      enabled: !isUserLoading,
+      getNextPageParam: (lastPage) => lastPage.lastVisibleId, // Pass cursor for next page
+      initialPageParam: "",
+    });
+
+  const observer = useRef<IntersectionObserver | null>(null);
+  const lastPostRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      console.log(123123);
+
+      if (isFetchingNextPage) return;
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNextPage) {
+          fetchNextPage(); // Load next page when last post comes into view
+        }
+      });
+
+      if (node) observer.current.observe(node);
+    },
+    [isFetchingNextPage, hasNextPage, fetchNextPage]
+  );
 
   useEffect(() => {
-    client?.invalidateQueries({ queryKey: ["postsFromDb"] });
+    client?.invalidateQueries({ queryKey: ["posts"] });
   }, [user, client]);
 
   const { mutate } = useMutation({
     mutationFn: (postToCreate: ICreatePost) => addPostFn(user!, postToCreate),
     onSuccess: () => {
-      client?.invalidateQueries({ queryKey: ["postsFromDb"] });
+      client?.invalidateQueries({ queryKey: ["posts"] });
     },
   });
 
@@ -53,9 +87,7 @@ export const MyPosts = () => {
     setFile(null);
   };
 
-
-  
-  if (isPostsLoading) return <p>Loading....</p>;
+  // if (isPostsLoading) return <p>Loading....</p>;
 
   return (
     <div className="max-w-xl mx-auto p-4 space-y-4">
@@ -66,7 +98,22 @@ export const MyPosts = () => {
         addPost={addPost}
       />
 
-      {posts && <PostsFeed posts={posts} />}
+      {/* {posts && <PostsFeed posts={posts} />} */}
+      {data &&
+        data.pages.map((page, pageNum) =>
+          page.posts.map((post, postNum) => (
+            <Post
+              key={post.id}
+              post={post}
+              ref={
+                pageNum === data.pages.length - 1 &&
+                postNum === page.posts.length - 1
+                  ? lastPostRef
+                  : null
+              }
+            />
+          ))
+        )}
     </div>
   );
 };

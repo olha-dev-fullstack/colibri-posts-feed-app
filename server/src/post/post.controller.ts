@@ -4,8 +4,10 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
@@ -28,9 +30,22 @@ export class PostController {
   }
 
   @Get()
-  getFeed(@UserFromDb('firebaseId') userId: string) {
-    return this.postsService.getFeed(userId);
+  getFeed(
+    @UserFromDb('firebaseId') userId: string,
+    @Query('lastDocId') lastDocId?: string,
+    @Query('limit', ParseIntPipe) limit?: number,
+  ) {
+    return this.postsService.getPaginatedFeed(limit, userId, lastDocId);
   }
+
+  // @Get('/paginated')
+  // getFeedPaginated(
+  //   @UserFromDb('firebaseId') userId: string,
+  //   @Query('lastDocId') lastDocId: string,
+  //   @Query('limit', ParseIntPipe) limit: number,
+  // ) {
+  //   return this.postsService.getPaginatedFeed(limit, userId, lastDocId);
+  // }
 
   @UseGuards(AuthGuard)
   @Get(':id')

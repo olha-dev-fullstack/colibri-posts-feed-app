@@ -24,15 +24,30 @@ export class UserService {
     return (await this.userCollection.doc(userData.firebaseId).get()).data();
   }
 
-  async getUserPosts(userId: string): Promise<PostDocument[]> {
-    const snapshot = await this.postsCollection
-      .where('owner', '==', userId)
-      .get();
+  async getUserPosts(
+    userId: string,
+    limit: number,
+    lastDocId?: string,
+  ): Promise<{ posts: PostDocument[]; lastVisibleId: string }> {
+    let postsQuery = this.postsCollection
+      .orderBy('createdAt', 'desc')
+      .limit(limit)
+      .where('owner', '==', userId);
+
+    if (lastDocId) {
+      const lastDoc = await this.postsCollection.doc(lastDocId).get();
+      postsQuery = postsQuery.startAfter(lastDoc);
+    }
+    const snapshot = await postsQuery.get();
+
     const posts = snapshot.docs.map((p) => ({
       id: p.id,
       ...p.data(),
       createdAt: p.createTime.toDate(),
     }));
-    return posts;
+
+    const lastVisibleId = posts[posts.length - 1]?.id;
+
+    return { posts, lastVisibleId };
   }
 }

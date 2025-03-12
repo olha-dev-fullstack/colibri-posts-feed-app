@@ -6,6 +6,7 @@ import {
 import { User } from "firebase/auth";
 import { useContext } from "react";
 import { addCommentFn, fetchComments } from "../feature/comments";
+import { IPaginatedPosts } from "../interface/post.interface";
 
 export const CommentsBlock = (props: { postId: string; user: User }) => {
   const { postId, user } = props;
@@ -19,8 +20,25 @@ export const CommentsBlock = (props: { postId: string; user: User }) => {
   const { mutate: createCommentMutation } = useMutation({
     mutationFn: (commentText: string) =>
       addCommentFn(postId, user!, commentText),
-    onSuccess: () => {
+    onSuccess: (comment) => {
       client?.invalidateQueries({ queryKey: ["comments"] });
+
+      client?.setQueryData(["posts"], (oldPosts: IPaginatedPosts) => {
+        console.log(oldPosts);
+        
+        oldPosts.pages.forEach((page) => {
+          page.posts.forEach((post) => {
+            if (post.id === comment.postId) {
+              console.log('found');
+              
+              Object.assign(post, { commentsCount: post.commentsCount! + 1 });
+            }
+          });
+        });
+        console.log('new', oldPosts);
+        
+        return oldPosts;
+      });
     },
   });
 

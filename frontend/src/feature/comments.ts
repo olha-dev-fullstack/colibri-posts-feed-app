@@ -15,7 +15,7 @@ export const addCommentFn = async (
   user: User,
   commentText: string
 ) => {
-  return axios.post(
+  const response = await axios.post<IComment>(
     `http://localhost:3000/posts/${postId}/comments`,
     {
       text: commentText,
@@ -26,4 +26,5 @@ export const addCommentFn = async (
       },
     }
   );
+  return response?.data;
 };

@@ -22,3 +22,7 @@ export interface ICreatePost {
   owner: string;
 }
 
+export interface IPaginatedPosts {
+  pageParams: string[];
+  pages: { posts: IPost[]; lastVisibleId: string }[];
+}

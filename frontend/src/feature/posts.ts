@@ -2,12 +2,26 @@ import axios from "axios";
 import { User } from "firebase/auth";
 import { ICreatePost, IPost } from "../interface/post.interface";
 
-export const fetchPostsFeed = async (user: User, endpoint: string) => {
-  const response = await axios.get<IPost[]>(endpoint, {
-    headers: {
-      Authorization: `Bearer ${await user?.getIdToken()}`,
-    },
-  });
+export const fetchPostsFeed = async ({
+  user,
+  endpoint,
+  pageParam,
+}: {
+  user: User;
+  endpoint: string;
+  pageParam: string
+}) => {
+  const params = new URLSearchParams();
+  params.append("limit", "5");
+  if (pageParam) params.append("lastDocId", pageParam);
+  const response = await axios.get<{ posts: IPost[]; lastVisibleId: string }>(
+    `${endpoint}?${params.toString()}`,
+    {
+      headers: {
+        Authorization: `Bearer ${await user?.getIdToken()}`,
+      },
+    }
+  );
 
   return response?.data;
 };
