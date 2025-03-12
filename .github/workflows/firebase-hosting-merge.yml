@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Create .env file
+        run: |
+          echo "VITE_API_URL=${{ vars.VITE_API_URL }}" >> frontend/.env
       - run: npm ci --prefix=frontend && npm run build --prefix=frontend
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:

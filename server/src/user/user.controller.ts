@@ -46,7 +46,8 @@ export class UserController {
     @UserFromDb('firebaseId') userId: string,
     @Query('limit', ParseIntPipe) limit: number,
     @Query('lastDocId') lastDocId?: string,
+    @Query('query') query?: string,
   ) {
-    return this.userService.getUserPosts(userId, limit, lastDocId);
+    return this.userService.getUserPosts(userId, limit, lastDocId, query);
   }
 }

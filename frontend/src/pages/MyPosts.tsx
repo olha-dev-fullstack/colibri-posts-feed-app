@@ -17,9 +17,14 @@ import { addPostFn, fetchPostsFeed } from "../feature/posts";
 import { getUploadLink } from "../firebase/imageUploader";
 import { useAuth } from "../hooks/useAuth";
 import { ICreatePost } from "../interface/post.interface";
+import useDebounce from "../hooks/useDebounce";
+
+
 
 export const MyPosts = () => {
   const { user, isLoading: isUserLoading } = useAuth();
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
   const client = useContext(QueryClientContext);
   const [newPost, setNewPost] = useState<ICreatePost>({
     title: "",
@@ -28,24 +33,29 @@ export const MyPosts = () => {
   });
   const [file, setFile] = useState<File | null>(null);
 
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
-    useInfiniteQuery({
-      queryKey: ["posts"],
-      queryFn: ({ pageParam }) =>
-        fetchPostsFeed({
-          user: user!,
-          endpoint: "http://localhost:3000/user/posts",
-          pageParam: pageParam,
-        }),
-      enabled: !isUserLoading,
-      getNextPageParam: (lastPage) => lastPage.lastVisibleId, // Pass cursor for next page
-      initialPageParam: "",
-    });
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["posts"],
+    queryFn: ({ pageParam }) =>
+      fetchPostsFeed({
+        user: user!,
+        endpoint: `${import.meta.env.VITE_API_URL}/user/posts`,
+        pageParam: pageParam,
+        search: debouncedSearch,
+      }),
+    enabled: !isUserLoading,
+    getNextPageParam: (lastPage) => lastPage.lastVisibleId, // Pass cursor for next page
+    initialPageParam: "",
+  });
 
   const observer = useRef<IntersectionObserver | null>(null);
   const lastPostRef = useCallback(
     (node: HTMLDivElement | null) => {
-
       if (isFetchingNextPage) return;
       if (observer.current) observer.current.disconnect();
 
@@ -71,6 +81,10 @@ export const MyPosts = () => {
     },
   });
 
+  useEffect(() => {
+    refetch();
+  }, [debouncedSearch, refetch]);
+
   const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setFile(file || null);
@@ -90,6 +104,14 @@ export const MyPosts = () => {
 
   return (
     <div className="max-w-xl mx-auto p-4 space-y-4">
+      <input
+        className="w-full mb-2 p-2 border rounded-md"
+        placeholder="Search..."
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value);
+        }}
+      ></input>
       <PostForm
         newPost={newPost}
         setNewPost={setNewPost}

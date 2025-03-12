@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { firebaseConfig } from "./config";
-import { getStorage, ref } from "firebase/storage";
+import { getStorage } from "firebase/storage";
 
 
 const app = initializeApp(firebaseConfig);

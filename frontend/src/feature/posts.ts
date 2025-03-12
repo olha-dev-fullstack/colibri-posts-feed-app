@@ -6,14 +6,17 @@ export const fetchPostsFeed = async ({
   user,
   endpoint,
   pageParam,
+  search,
 }: {
   user: User;
   endpoint: string;
-  pageParam: string
+  pageParam: string;
+  search?: string;
 }) => {
   const params = new URLSearchParams();
   params.append("limit", "5");
   if (pageParam) params.append("lastDocId", pageParam);
+  if (search) params.append("query", search);
   const response = await axios.get<{ posts: IPost[]; lastVisibleId: string }>(
     `${endpoint}?${params.toString()}`,
     {
@@ -28,7 +31,7 @@ export const fetchPostsFeed = async ({
 
 export const addPostFn = async (user: User, newPost: ICreatePost) => {
   return axios.post(
-    "http://localhost:3000/posts",
+    `${import.meta.env.VITE_API_URL}/posts`,
     {
       ...newPost,
     },
@@ -42,7 +45,7 @@ export const addPostFn = async (user: User, newPost: ICreatePost) => {
 
 export const likePostFn = async (user: User, postId: string) => {
   const response = await axios.post<IPost>(
-    `http://localhost:3000/posts/${postId}/like`,
+    `${import.meta.env.VITE_API_URL}/posts/${postId}/like`,
     {},
     {
       headers: {
@@ -55,7 +58,7 @@ export const likePostFn = async (user: User, postId: string) => {
 
 export const dislikePostFn = async (user: User, postId: string) => {
   const response = await axios.post<IPost>(
-    `http://localhost:3000/posts/${postId}/dislike`,
+    `${import.meta.env.VITE_API_URL}/posts/${postId}/dislike`,
     {},
     {
       headers: {
@@ -67,7 +70,7 @@ export const dislikePostFn = async (user: User, postId: string) => {
 };
 
 export const deletePostFn = async (user: User, postId: string) => {
-  await axios.delete(`http://localhost:3000/posts/${postId}`, {
+  await axios.delete(`${import.meta.env.VITE_API_URL}/posts/${postId}`, {
     headers: {
       Authorization: `Bearer ${await user?.getIdToken()}`,
     },
@@ -79,7 +82,7 @@ export const updatePostFn = async (
   { postId, postData }: { postId: string; postData: Partial<ICreatePost> }
 ) => {
   const response = await axios.put<IPost>(
-    `http://localhost:3000/posts/${postId}`,
+    `${import.meta.env.VITE_API_URL}/posts/${postId}`,
     {
       ...postData,
     },

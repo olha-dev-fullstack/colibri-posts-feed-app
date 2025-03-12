@@ -4,7 +4,7 @@ import { IComment } from "../interface/comment.interface";
 
 export const fetchComments = async (postId: string) => {
   const response = await axios.get<IComment[]>(
-    `http://localhost:3000/posts/${postId}/comments`
+    `${import.meta.env.VITE_API_URL}/posts/${postId}/comments`
   );
 
   return response?.data;
@@ -16,7 +16,7 @@ export const addCommentFn = async (
   commentText: string
 ) => {
   const response = await axios.post<IComment>(
-    `http://localhost:3000/posts/${postId}/comments`,
+    `${import.meta.env.VITE_API_URL}/posts/${postId}/comments`,
     {
       text: commentText,
     },

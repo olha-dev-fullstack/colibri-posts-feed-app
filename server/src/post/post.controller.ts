@@ -34,18 +34,10 @@ export class PostController {
     @UserFromDb('firebaseId') userId: string,
     @Query('lastDocId') lastDocId?: string,
     @Query('limit', ParseIntPipe) limit?: number,
+    @Query('query') query?: string,
   ) {
-    return this.postsService.getPaginatedFeed(limit, userId, lastDocId);
+    return this.postsService.getPaginatedFeed(limit, userId, lastDocId, query);
   }
-
-  // @Get('/paginated')
-  // getFeedPaginated(
-  //   @UserFromDb('firebaseId') userId: string,
-  //   @Query('lastDocId') lastDocId: string,
-  //   @Query('limit', ParseIntPipe) limit: number,
-  // ) {
-  //   return this.postsService.getPaginatedFeed(limit, userId, lastDocId);
-  // }
 
   @UseGuards(AuthGuard)
   @Get(':id')

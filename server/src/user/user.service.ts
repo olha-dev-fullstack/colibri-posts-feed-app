@@ -28,12 +28,19 @@ export class UserService {
     userId: string,
     limit: number,
     lastDocId?: string,
+    query?: string,
   ): Promise<{ posts: PostDocument[]; lastVisibleId: string }> {
     let postsQuery = this.postsCollection
       .orderBy('createdAt', 'desc')
       .limit(limit)
       .where('owner', '==', userId);
 
+    if (query) {
+      const endQuery = query + '\uf8ff';
+      postsQuery = postsQuery
+        .where('title', '>=', query)
+        .where('title', '<=', endQuery);
+    }
     if (lastDocId) {
       const lastDoc = await this.postsCollection.doc(lastDocId).get();
       postsQuery = postsQuery.startAfter(lastDoc);

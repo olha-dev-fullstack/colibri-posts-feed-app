@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUser = async () => {
-    const response = await axios.get<DbUser>("http://localhost:3000/user", {
+    const response = await axios.get<DbUser>("/user", {
       headers: { Authorization: `Bearer ${await user!.getIdToken()}` },
     });
     return response?.data;
