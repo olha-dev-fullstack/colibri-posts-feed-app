@@ -7,9 +7,15 @@ export class FirebaseAppService {
   private firebaseApp: firebase.app.App;
 
   constructor(private configService: ConfigService) {
-    this.firebaseApp = firebase.initializeApp({
-      credential: firebase.credential.cert(configService.get<string>('SA_KEY')),
-    });
+    if (!firebase.apps.length) {
+      this.firebaseApp = firebase.initializeApp({
+        credential: firebase.credential.cert(
+          configService.get<string>('SA_KEY'),
+        ),
+      });
+    } else {
+      this.firebaseApp = firebase.app();
+    }
   }
 
   getAuth = (): firebase.auth.Auth => {

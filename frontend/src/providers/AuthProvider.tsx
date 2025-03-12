@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUser = async () => {
-    const response = await axios.get<DbUser>("/user", {
+    const response = await axios.get<DbUser>(`${import.meta.env.VITE_API_URL}/user`, {
       headers: { Authorization: `Bearer ${await user!.getIdToken()}` },
     });
     return response?.data;
