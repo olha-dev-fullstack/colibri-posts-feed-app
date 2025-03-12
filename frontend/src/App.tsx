@@ -8,6 +8,17 @@ import { Profile } from "./pages/Profile";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isLoading } = useAuth();
+  if (isLoading) return <p>Loading...</p>;
+  return (
+    <>
+      <Header />
+      {children}
+    </>
+  );
+};
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
   if (isLoading) return <p>Loading...</p>;
@@ -32,8 +43,10 @@ function App() {
             path="feed"
             element={
               <>
-                <Header />
-                <Home />
+                <PublicRoute>
+                  {/* <Header /> */}
+                  <Home />
+                </PublicRoute>
               </>
             }
           />
