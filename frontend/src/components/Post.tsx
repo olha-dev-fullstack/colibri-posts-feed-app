@@ -1,5 +1,5 @@
 import { QueryClientContext, useMutation } from "@tanstack/react-query";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   deletePostFn,
   dislikePostFn,
@@ -131,6 +131,8 @@ export const Post = ({
     });
     setIsEditing(false);
   };
+  useEffect(() => {console.log(post);
+  }, [post])
 
   return (
     <div className="p-4 bg-white shadow-md rounded-md" ref={ref}>

@@ -13,7 +13,7 @@ export const CommentsBlock = (props: { postId: string; user: User }) => {
   const client = useContext(QueryClientContext);
 
   const { data: comments, isLoading: isCommentsLoading } = useQuery({
-    queryKey: ["comments"],
+    queryKey: ["comments", postId],
     queryFn: () => fetchComments(postId),
   });
 
@@ -21,24 +21,19 @@ export const CommentsBlock = (props: { postId: string; user: User }) => {
     mutationFn: (commentText: string) =>
       addCommentFn(postId, user!, commentText),
     onSuccess: (comment) => {
-      client?.invalidateQueries({ queryKey: ["comments"] });
+      client?.invalidateQueries({ queryKey: ["comments", comment.postId] });
 
-      client?.setQueryData(["posts"], (oldPosts: IPaginatedPosts) => {
-        console.log(oldPosts);
-        
-        oldPosts.pages.forEach((page) => {
-          page.posts.forEach((post) => {
-            if (post.id === comment.postId) {
-              console.log('found');
-              
-              Object.assign(post, { commentsCount: post.commentsCount! + 1 });
-            }
-          });
-        });
-        console.log('new', oldPosts);
-        
-        return oldPosts;
-      });
+      client?.setQueryData(["posts"], (old: IPaginatedPosts) => ({
+        ...old,
+        pages: old.pages.map((page) => ({
+          ...page,
+          posts: page.posts.map((post) =>
+            post.id === postId
+              ? { ...post, commentsCount: post.commentsCount! + 1 }
+              : post
+          ),
+        })),
+      }));
     },
   });
 

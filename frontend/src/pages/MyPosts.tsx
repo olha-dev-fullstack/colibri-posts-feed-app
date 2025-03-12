@@ -45,7 +45,6 @@ export const MyPosts = () => {
   const observer = useRef<IntersectionObserver | null>(null);
   const lastPostRef = useCallback(
     (node: HTMLDivElement | null) => {
-      console.log(123123);
 
       if (isFetchingNextPage) return;
       if (observer.current) observer.current.disconnect();
